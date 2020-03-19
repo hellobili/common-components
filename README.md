@@ -1,24 +1,5 @@
 # common-components
 
-## Project setup
-```
-npm install
-```
+>项目说明：
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
-
-### Compiles and minifies for production
-```
-npm run build
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## 文档地址 (https://www.showdoc.cc/commonComponents?page_id=4072938379226764)
