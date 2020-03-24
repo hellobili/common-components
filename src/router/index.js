@@ -6,7 +6,7 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    component: () => import('../views/index')
+    component: () => import('../views/TablePagePack/ElementUI/demo')
   }
 ]
 
