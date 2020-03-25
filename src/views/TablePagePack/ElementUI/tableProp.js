@@ -1,3 +1,4 @@
+// 数据
 const dataSource = [{
   key: '1',
   name: '胡彦斌',
@@ -15,8 +16,12 @@ const dataSource = [{
 }
 ]
 // 表格头设置
-const columns = [{
-  type: 'expand'
+const columns = (that) => [{
+  type: 'selection'
+},
+{
+  label: '序号',
+  type: 'index'
 },
 {
   label: '姓名',
@@ -24,6 +29,13 @@ const columns = [{
   unit: '单位',
   props: {
     sortable: 'sortable'
+  }
+},
+{
+  label: '姓名',
+  prop: 'name',
+  click: (row, column, index) => {
+    alert(row.name)
   }
 },
 {
@@ -48,6 +60,39 @@ const columns = [{
       style: 'fontSize: 22px'
     }), h('span', parmas.row.mobileNum)]
   }
+},
+{
+  label: '手机号',
+  render: (h, parmas) => {
+    return [
+      <i class='el-icon-phone-outline' style='fontSize: 22px'></i>,
+      <span>{parmas.row.mobileNum}</span>
+    ]
+  }
+},
+{
+  label: '插槽1',
+  slotName: 'slot1'
+},
+{
+  label: '插槽2',
+  slotName: 'slot2'
+},
+{
+  operates: true,
+  label: '操作',
+  btn: [{
+    label: '编辑',
+    isShow: row => {
+      return row.status !== 2
+    },
+    disabled: row => {
+      return row.status === 2
+    },
+    method: row => {
+      that.handleNewJump(row)
+    }
+  }]
 }
 ]
 // 表格操作按钮

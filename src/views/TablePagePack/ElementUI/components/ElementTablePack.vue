@@ -13,8 +13,11 @@
       :header-cell-style="{ background: '#f6f2ee' }"
       @selection-change="handleSelectionChange"
     >
+      <!-- 配置数据前插槽 -->
+      <slot name="beforeColum"></slot>
       <!-- 表格数据 -->
       <template v-for="(column, index) in columns">
+        <!-- type属性列 -->
         <template v-if="column.type">
           <el-table-column
             :key="index"
@@ -28,7 +31,6 @@
         </template>
         <template v-else>
           <el-table-column
-            :type='column.type'
             :key="index"
             v-bind="column.props"
             :prop="column.prop"
@@ -39,12 +41,14 @@
           >
             <template slot-scope="scope">
               <template v-if="!column.render">
+                <!-- formatter -->
                 <template v-if="column.formatter">
                   <span
                     v-html="column.formatter(scope.row, column, scope.$index)"
                     @click="column.click && column.click(scope.row, scope.$index)"
                   ></span>
                 </template>
+                <!-- 跳转 -->
                 <template v-else-if="column.newjump">
                   <router-link
                     class="newjump"
@@ -52,6 +56,25 @@
                     :to="column.newjump(scope.row, column, scope.$index)"
                   >{{scope.row[column.prop] || column.content}}</router-link>
                 </template>
+                <!-- 操作按钮 -->
+                <template v-else-if="column.operates">
+                  <template v-for="(btn, key) in column.btn">
+                    <span
+                      :key="key"
+                      v-if="!btn.isShow || (btn.isShow && btn.isShow(scope.row, scope.$index))"
+                    >
+                      <el-button
+                        :size="btn.size || 'small'"
+                        :type="btn.type || `text`"
+                        :icon="btn.icon"
+                        :plain="btn.plain"
+                        :disabled="btn.disabled && btn.disabled(scope.row, scope.$index)"
+                        @click.native.prevent="btn.method(scope.row, scope.$index)"
+                      >{{ btn.label }}{{column.btn.length >= 2 ? '&nbsp;&nbsp;' : ''}}</el-button>
+                    </span>
+                  </template>
+                </template>
+                <slot v-else-if="column.slotName" :name="column.slotName" :data="scope"></slot>
                 <template v-else>
                   <span
                     :style="column.click ? 'color: #409EFF; cursor: pointer;' : null"
@@ -67,31 +90,25 @@
               </template>
             </template>
           </el-table-column>
-      </template>
+        </template>
       </template>
 
-      <!-- slot插槽按钮 -->
-      <el-table-column label="操作" align="center" v-if="options && options.slotcontent">
-        <template slot-scope="scope">
-          <slot :data="scope.row"></slot>
-        </template>
-      </el-table-column>
+      <!-- 配置数据后插槽 -->
+      <slot name="afterColum"></slot>
 
       <!-- 操作按钮 -->
       <el-table-column
         label="操作"
-        align="center"
-        v-bind="options && options.props"
-        v-if="operates && operates.length > 0"
+        v-if="operates"
       >
         <template slot-scope="scope">
-          <div class="operate-group">
             <template v-for="(btn, key) in operates">
               <span
                 :key="key"
                 v-if="!btn.isShow || (btn.isShow && btn.isShow(scope.row, scope.$index))"
               >
                 <el-button
+                  v-bind="btn.props && btn.props"
                   :size="btn.size || 'small'"
                   :type="btn.type || `text`"
                   :icon="btn.icon"
@@ -101,22 +118,22 @@
                 >{{ btn.label }}{{operates.length >= 2 ? '&nbsp;&nbsp;' : ''}}</el-button>
               </span>
             </template>
-          </div>
         </template>
       </el-table-column>
     </el-table>
-    <br />
     <!-- 分页部分 -->
-    <el-pagination
-      background
-      class="pagination"
-      v-if="pagination"
-      :total="dataTotal"
-      :current-page="pagination.currentPage"
-      :page-size="pagination.pageSize"
-      @current-change="handleChangePage"
-      layout="total, prev, pager, next"
-    />
+    <div class="tablePage-pagination">
+      <el-pagination
+        background
+        class="pagination"
+        v-if="pagination"
+        :total="dataTotal"
+        :current-page="pagination.currentPage"
+        :page-size="pagination.pageSize"
+        @current-change="handleChangePage"
+        layout="total, prev, pager, next"
+      />
+    </div>
   </div>
 </template>
 
@@ -137,11 +154,11 @@ export default {
   props: {
     dataSource: {
       type: Array,
-      default: () => ([])
+      default: () => []
     },
     columns: {
       type: Array,
-      default: () => ([])
+      default: () => []
     },
     border: {
       type: Boolean,
@@ -208,29 +225,17 @@ export default {
 <style lang="stylus" scoped>
 .table_list_fix {
   overflow: hidden;
-  .btn-operates {
-    margin-bottom: 6px;
-    a {
-      color: #fff;
-      text-decoration: none;
-      display: inline-block;
-    }
-  }
 }
-.table-header {
-  padding-top: 10px;
-  .table-header_button {
-    text-align: right;
-    float: right;
-    margin-bottom: 12px;
-    line-height: 40px;
-  }
-}
+
 .newjump {
   text-decoration: none;
   color: dodgerblue;
 }
-.pagination {
-  text-align: center;
+.tablePage-pagination{
+  padding 20px 0
+  .pagination {
+    text-align: center;
+  }
 }
+
 </style>
